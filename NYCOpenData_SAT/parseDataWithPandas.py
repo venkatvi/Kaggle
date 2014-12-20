@@ -1,6 +1,8 @@
+
 import pandas as pd
 import re
 import numpy as np
+
 
 #load data
 dsProgReports = pd.read_csv('Data/School_Progress_Reports_-_All_Schools_-_2009-10.csv')
@@ -48,13 +50,13 @@ dsSATs['Mathematics Mean'] = dsSATs['Mathematics Mean'].astype(int)
 dsSATs['Writing Mean'] = dsSATs['Writing Mean'].astype(int)
 
 # get shape of the DataFrame
-print dsClassSize.columns
-print dsClassSize.take([0, 1, 10]).values
+#print dsClassSize.columns
+#print dsClassSize.take([0, 1, 10]).values
 
 dsPupilTeacher = dsClassSize.filter(['SCHOOLWIDE PUPIL-TEACHER RATIO'])
 mask = dsPupilTeacher['SCHOOLWIDE PUPIL-TEACHER RATIO'].map(lambda x: x>0)
 dsPupilTeacher = dsPupilTeacher[mask]
-dsClassSize = dsClassSize.drop('SCHOOLWIDE PUPIL-TEACHER RATIO', axix = 1)
+dsClassSize = dsClassSize.drop('SCHOOLWIDE PUPIL-TEACHER RATIO', axis = 1)
 
 dsClassSize = dsClassSize.drop(['BORO', 'CSD', 'SCHOOL NAME', 'GRADE ', 'PROGRAM TYPE',
 	'CORE SUBJECT (MS CORE and 9-12 ONLY)',
@@ -68,6 +70,7 @@ dsClassSize = grouped.aggregate(np.max).\
 join(grouped.aggregate(np.min), lsuffix=".max").\
 join(grouped.aggregate(np.mean), lsuffix=".min", rsuffix=".mean").\
 join(dsPupilTeacher)
+
 
 mask = dsProgReports['SCHOOL LEVEL*'].map(lambda x: x == 'High School')
 dsProgReports = dsProgReports[mask]
@@ -95,7 +98,7 @@ grades = np.unique(final[gradeCols].values) #[nan, A, B, C, D, F]
 for c in gradeCols:
     for g in grades:
     	colName = c + "_is_" + str(g)
-        final[colName] = pd.Series(data=final[c].map(lambda x: 1 if x is g else 0))
+        final[colName] = pd.Series(data=final[c].map(lambda x: 1 if x is g else -1))
 
 
 final = final.drop(gradeCols, axis=1) 
@@ -103,3 +106,8 @@ final = final.drop(gradeCols, axis=1)
 #Uncomment to generate csv files 
 #final.drop(['Critical Reading Mean','Mathematics Mean','Writing Mean'],axis=1).to_csv('Data/train.csv') 
 #final.filter(['Critical Reading Mean','Mathematics Mean','Writing Mean']).to_csv('Data/target.csv')
+
+
+target=final.filter(['Critical Reading Mean'])
+#We drop all three dependent variables because we don't want them used when trying to make a prediction.
+train = final.drop(['Critical Reading Mean','Writing Mean','Mathematics Mean'],axis=1)
