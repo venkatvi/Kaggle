@@ -47,8 +47,8 @@ def cleanUpData(fileName, dataType):
 	# clean ups 
 	# only age, cabin and embarked are underfilled
 	# when age not available, fill it with mean age
-	#meanAge = ds['Age'].mean()
-	#ds['Age'] = ds['Age'].map(lambda x: x if np.isfinite(x) else meanAge).astype(float)
+	meanAge = ds['Age'].mean()
+	ds['Age'] = ds['Age'].map(lambda x: x if np.isfinite(x) else meanAge).astype(float)
 	
 	# when cabin not available, fill it with cabin of the previous  next ticket number if available, else fill with -1
 	# already taken care of in cabinclass and cabinnumber
@@ -56,80 +56,85 @@ def cleanUpData(fileName, dataType):
 	# already taken care of in CQS map earlier
 
 	# fill up missing value in Fare
-	#meanFare = ds['Fare'].mean()
-	#ds['Fare'] = ds['Fare'].map(lambda x: x if np.isfinite(x) else meanFare).astype(float)
-	#print ds.info(verbose=True)
+	meanFare = ds['Fare'].mean()
+	ds['Fare'] = ds['Fare'].map(lambda x: x if np.isfinite(x) else meanFare).astype(float)
+	print ds.info(verbose=True)
 	return [ds, passengerIds]
 
 if __name__ == '__main__':
 	[train, trainPassengerIds] = cleanUpData('Data/train.csv', 'train')
 	[test, testPassengerIds] = cleanUpData('Data/test.csv', 'test')
-	print test.info(verbose=True)
+
+	# # Use Gaussian NB to predict Age
+	# ageTest = train[train['Age'].notnull()==False]
+	# ageTest = ageTest.drop(['Age'], axis=1)
 	
-	ageTest = train[train['Age'].notnull()==False]
-	ageTest = ageTest.drop(['Age'], axis=1)
+	# ageTrain = train[np.isfinite(train['Age'])]
 	
-	ageTrain = train[np.isfinite(train['Age'])]
+	# #Predict Missing Values of Age:
+	# ageTarget = ageTrain.filter(['Age'])
+	# ageTarget = np.array(ageTarget.values).ravel()
+	# ageTrain = ageTrain.drop(['Age'], axis=1)
 	
-	#Predict Missing Values of Age:
-	ageTarget = ageTrain.filter(['Age'])
-	ageTarget = np.array(ageTarget.values).ravel()
-	ageTrain = ageTrain.drop(['Age'], axis=1)
+	# gnb = GaussianNB()
+	# y_pred = gnb.fit(ageTrain, ageTarget).predict(ageTrain)
+	# print "Number of mislabeled age out of a total %d points : %d" % (ageTrain.shape[0],(ageTarget != y_pred).sum())
+	# y_test = gnb.predict(ageTest)
+
+	# ageTest['Age'] = y_test
+	# ageTrain['Age'] = ageTarget
+
+	# train = ageTrain.append(ageTest)
+
+	# # fill in values of Age column in the test data using GaussianNB
+	# ageTest = test[test['Age'].notnull()==False]
+	# ageTest = ageTest.drop(['Age'], axis=1)
+
+	# ageTrain = test[np.isfinite(test['Age'])]
+
+	# #Predict Missing Values of Age:
+	# ageTarget = ageTrain.filter(['Age'])
+	# ageTarget = np.array(ageTarget.values).ravel()
+	# ageTrain = ageTrain.drop(['Age'], axis=1)
 	
-	gnb = GaussianNB()
-	y_pred = gnb.fit(ageTrain, ageTarget).predict(ageTrain)
-	print "Number of mislabeled age out of a total %d points : %d" % (ageTrain.shape[0],(ageTarget != y_pred).sum())
-	y_test = gnb.predict(ageTest)
+	# # remove fair, embarkedOrd from ageTrain
+	# backUpAgeTrain = ageTrain
+	# backUpAgeTest = ageTest
+	# ageTrain = ageTrain.drop(['Fare', 'EmbarkedOrd'], axis=1)
+	# ageTest = ageTest.drop(['Fare', 'EmbarkedOrd'], axis=1)
 
-	ageTest['Age'] = y_test
-	ageTrain['Age'] = ageTarget
+	# gnb = GaussianNB()
+	# y_pred = gnb.fit(ageTrain, ageTarget).predict(ageTrain)
+	# print "Number of mislabeled age out of a total %d points : %d" % (ageTrain.shape[0],(ageTarget != y_pred).sum())
+	# y_test = gnb.predict(ageTest)
 
-	train = ageTrain.append(ageTest)
+	# backUpAgeTest['Age'] = y_test
+	# backUpAgeTrain['Age'] = ageTarget
+
+	# test = backUpAgeTrain.append(backUpAgeTest)
+	# test['Fare'] = test['Fare'].map(lambda x: x if np.isfinite(x) else test['Fare'].mean())
+	
+
+
+	# Fit the training data to the Survived labels and create the decision trees
+	target = train.filter(['Survived'])
+	target = np.array(target.values).ravel()
+	train = train.drop(['Survived'], axis=1)
+
+	X,X_test,y,y_test = train_test_split(train,target,
+                                     test_size=.20,
+                                     random_state=1899)
 
 	
-	#prediction_accuracy = accuracy_score(y_test, clf.best_estimator_.predict(X_test))
-	#print "AgePredictionAccuracy:" + str(prediction_accuracy) 
+	parameters = [{'n_estimators': np.arange(100,1000,100)}]
+	clf = GridSearchCV(RandomForestClassifier(), parameters, cv=10, scoring='accuracy', verbose='3')
+	clf.fit(X,y) # running the grid search
+
+	prediction_accuracy = accuracy_score(y_test, clf.best_estimator_.predict(X_test))
+	print prediction_accuracy
 	
-
-	# # Fit the training data to the Survived labels and create the decision trees
-	# target = train.filter(['Survived'])
-	# target = np.array(target.values).ravel()
-	# train = train.drop(['Survived'], axis=1)
-
-	# X,X_test,y,y_test = train_test_split(train,target,
- #                                     test_size=.20,
- #                                     random_state=1899)
-
-	
-	# parameters = [{'n_estimators': np.arange(100,500,100)}]
-	# clf = GridSearchCV(RandomForestClassifier(), parameters, cv=10, scoring='accuracy', verbose='3')
-	# clf.fit(X,y) # running the grid search
-
-	# prediction_accuracy = accuracy_score(y_test, clf.best_estimator_.predict(X_test))
-	# #forest = forest.fit(train,target)
-
-	#print train.shape
-	#print train.columns
-
-	#GridSearchCV(pipeline, param_grid=param_grid, verbose=3,scoring='accuracy',cv=10) 
-
-	#predictions = np.array(forest.predict(train))
-	#rmse = math.sqrt(np.mean((np.array(target) - predictions)**2))
-	#imp = sorted(zip(train.columns, forest.feature_importances_), key=lambda tup: tup[1], reverse=True)
-
-	#print "RMSE: " + str(rmse)
-	#print "10 Most Important Variables:" + str(imp[:10])
-
-	# Take the same decision trees and run it on the test data
-	#print test.shape
-	#print test.columns
-	#print np.isfinite(test.sum())
-	#print np.isfinite(test).all()
-	#print np.unique(test['Fare'].values)
-	#output = forest.predict(test)
-	#output = clf.best_estimator_.predict(test)
-	#submissionData = {'PassengerId': testPassengerIds, 'Survived': output}
-	#submissionDF = pd.DataFrame(submissionData)
-	#submissionDF.drop_duplicates()
-
-	#submissionDF.to_csv('Data/kaggleOutput2.csv', index=False)
+	#Take the same decision trees and run it on the test data
+	output = clf.best_estimator_.predict(test)
+	submissionData = {'PassengerId': testPassengerIds, 'Survived': output}
+	submissionDF = pd.DataFrame(submissionData)
+	submissionDF.to_csv('Data/Titanic_NB_RF.csv', index=False)
