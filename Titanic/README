@@ -40,10 +40,15 @@ Submission 5:
 Use median in Submission 4 
 Prediction Accuracy 0.741
 
-Submission 5: 
+Submission 6: 
 Drop ticket, cabin, age, name, sibsp, parch
 Use title (derived from name)
 How about sex, title, pclass to predict survival ?
+Prediction Accuracy: 0.78468
+
+Submission 7:
+Drop pclass . Use only sex and title 
+No discrimination on the status
 
 
 
