@@ -43,12 +43,19 @@ Prediction Accuracy 0.741
 Submission 6: 
 Drop ticket, cabin, age, name, sibsp, parch
 Use title (derived from name)
-How about sex, title, pclass to predict survival ?
+How about gender, title, pclass to predict survival ?
 Prediction Accuracy: 0.78468
 
 Submission 7:
-Drop pclass . Use only sex and title 
+Drop pclass . Use only gender and title 
 No discrimination on the status
+Prediction Accuracy: 0.76077 
+
+Class is a good indicator. 
+
+Submission 8: 
+which field is now better? 
+gender, title, pclass, sibsp, parch ?
 
 
 
