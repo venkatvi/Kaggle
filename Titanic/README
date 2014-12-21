@@ -1,0 +1,52 @@
+This is a code base maintained towards Kaggle 101 Competition:
+https://www.kaggle.com/c/titanic-gettingStarted
+
+Strategies followed are explained below:
+Submission 1: 
+Parse Ticket filed to 2 fields - Ticket Prefix, and Ticket Number
+Parse Cabin - seperate Cabin class from number. If multiple cabin numbers present, add new rows for each of them 
+use Mean Age, Fare as fillers
+use 0 for missing Embarked
+use '' for missing cabin class
+use -1 for missing cabin number
+use 1 for female and 0 for male
+map 1 - C, 2- Q , 3 - S for Embarkment
+Drop Name field
+Random Forest to fit and predict
+Prediction Accuracy 0.6406
+
+Submission 2: 
+Use graphsearchcv to cross validate data and fit a forest
+<Intermediate Submissions - Use median instead of mode> 
+Prediction Accuracy 0.66
+
+
+Submission 3:
+Parse Name field to extract "Title" -> map it to 0 - other, 1 - master, 2 - Miss, 3- Mr, 4 - Mrs. 
+Drop ticket, cabin and Name fields
+Retain gender, age, title, fare, parch, sibsp, pclass and embarked 
+Use NaiveBayes in training and test data to predict Age 
+Use random forest to predict survived 
+Prediction Accuracy 0.56
+
+Submission 4:
+Drop ticket, cabin and name fields
+Retain title
+Use mean age and fare as fillers
+Use random forest to predict 
+Prediction Accuracy 0.744
+
+Submission 5:
+Use median in Submission 4 
+Prediction Accuracy 0.741
+
+Submission 5: 
+Drop ticket, cabin, age, name, sibsp, parch
+Use title (derived from name)
+How about sex, title, pclass to predict survival ?
+
+
+
+
+
+
