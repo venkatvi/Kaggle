@@ -56,6 +56,21 @@ Class is a good indicator.
 Submission 8: 
 which field is now better? 
 gender, title, pclass, sibsp, parch ?
+or gender, pclass, sibsp, parch ?
+Gives Accuracy: 0.76
+
+Submission 9:
+Gender Class 
+Gives 0.68 accuracy
+
+Submission 10:
+Gender Class Title TicketNumber - give 0.689
+
+Submission 11: 
+Gender Class Title Embarked - 0.7849
+
+
+
 
 
 
