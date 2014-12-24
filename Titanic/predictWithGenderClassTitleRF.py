@@ -3,11 +3,10 @@ import numpy as np
 import math
 import re
 from sklearn.ensemble import RandomForestClassifier 
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.cross_validation import train_test_split
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import accuracy_score
-from sklearn.naive_bayes import GaussianNB
+
 	
 def mapTitle(titleStr):
 	if titleStr == 'MASTER':

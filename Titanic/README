@@ -70,6 +70,65 @@ Submission 11:
 Gender Class Title Embarked - 0.7849
 
 
+------- Random forest has been exhausted ------
+
+Other ideas for classification:
+
+1. K-nn approach of giving a label to test data based on its training data neighbours
+2. PCA to figure out lower dimension in which this data can be represented
+3. Mix of 2, 1 - Pipeline of PCA, K-nn - 
+
+4. Pipeline of PCA (all dimensions) RF
+5. Use gridsearchcv for each of these approaches
+
+Class Gender Title has the highest score but still lower than Random forests
+
+--------- Alternate approaches -----------
+
+Use all float fields except Ticket and Cabin
+Filled Age and Fare with mean values
+Prediction Accuracy - 0.78
+
+
+Scale them using sklearn preprocessing routine. 
+
+Select features using RandomForestClassifier using cross validation, train test split
+With best estimator  - fit transform for train and test
+
+Use those features and predict using SVM 
+
+Score: 0.764 
+
+
+- remove fare, age, sibsp, parch - Use gender  class title only
+
+Prediction Accuracy is 0.71  
+
+Score: 0.68 
+
+looks like this has a linear prediction compared to actual score. 
+
+Tweaking these values to see if any better results can be obtained. 
+
+No luck on prediction accuracy - hence moving to next strategy
+
+--------------------------------------------------------------------
+
+Iterate over this idea:
+	Use random forest - predict using gender, title, class
+	Use predicted results along with training set to again train the data using cross validation
+	Overfit the test predictions till the predictions saturate. 
+
+	Gradient Descent on unseen data
+
+	See if score improves
+
+
+
+
+
+
+
 
 
 

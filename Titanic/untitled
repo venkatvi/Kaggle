@@ -1,0 +1,62 @@
+import pandas as pd
+import numpy as np
+import math
+import re
+from sklearn import preprocessing as pp
+from sklearn import cross_validation as cv
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.svm import SVC
+
+
+def cleanUpData(fileName):
+	ds = pd.read_csv(fileName)
+	#print train.info(verbose=True)
+
+	# clean ups
+	# 1. map sex - to [0-female, 1-male]
+	# Add a new col which is nominal for sex. 
+	ds['SexOrd'] = pd.Series(data=ds['Sex'].map(lambda x: 0 if x is 'female' else 1))
+
+
+	# 4. map embarked - [1-C , 2-Q, 3-S]
+	ds['EmbarkedOrd'] = ds['Embarked'].map(lambda x: ord(x) if x and type(x) is str else 0).astype(int)
+
+	# backup passenger id
+	passengerIds = ds['PassengerId']
+
+	# Drop PassengerId, Name, Sex, Embarked
+	ds = ds.drop(['PassengerId', 'Sex', 'Name', 'Embarked', 'Cabin', 'Ticket'], axis=1)
+	
+	# clean ups 
+	# when age not available, fill it with mean age
+	meanAge = ds['Age'].mean()
+	ds['Age'] = ds['Age'].map(lambda x: x if np.isfinite(x) else meanAge).astype(float)
+	
+	# fill up missing value in Fare
+	meanFare = ds['Fare'].mean()
+	ds['Fare'] = ds['Fare'].map(lambda x: x if np.isfinite(x) else meanFare).astype(float)
+	print ds.info(verbose=True)
+	return [ds, passengerIds]
+
+if __name__ == '__main__':
+	[train, trainPassengerIds] = cleanUpData('Data/train.csv')
+	[test, testPassengerIds] = cleanUpData('Data/test.csv')
+
+	
+	# Scale data
+	train = pp.scale(train)
+	test = pp.scale(test)
+
+	# Select features
+	selector = ExtraTreesClassifier(compute_importances=True, random_state=0)
+	train = selector.fit_transform(train, target)
+	test = selector.transform(test)
+
+	# Estimate score
+	classifier = SVC(C=8, gamma=0.17)
+	scores = cv.cross_val_score(classifier, train, target, cv=30)
+	print('Estimated score: %0.5f (+/- %0.5f)' % (scores.mean(), scores.std() / 2))
+
+	# Predict and save
+	result = classifier.fit(train, target).predict(test)
+	np.savetxt(workDir + 'result.csv', result, fmt='%d')
